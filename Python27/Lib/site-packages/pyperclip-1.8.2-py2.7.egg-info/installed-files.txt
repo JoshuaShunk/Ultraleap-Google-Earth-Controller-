@@ -1,0 +1,8 @@
+..\pyperclip\__init__.py
+..\pyperclip\__init__.pyc
+..\pyperclip\__main__.py
+..\pyperclip\__main__.pyc
+PKG-INFO
+SOURCES.txt
+dependency_links.txt
+top_level.txt
