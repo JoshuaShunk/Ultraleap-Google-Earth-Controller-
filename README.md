@@ -1,3 +1,4 @@
+
 # Google Earth Controller using Leap Motion
 
 ## Introduction
@@ -7,6 +8,8 @@ After the discontinuation of the official Google Earth UltraLeap controller, the
 ## Project Structure
 
 - **LeapAPITest.py**: The main Python script that interfaces with the Leap Motion API to capture hand gestures and translate them into movements within Google Earth.
+- **Controllers/ControllerConfig.py**: Stores and manages the different controller configurations.
+- **Controllers/behaviors.py**: Contains the different behaviors that define how hand gestures are interpreted and used to control Google Earth.
 - **runscript.bat**: A batch script to conveniently run the main Python script.
 - **Leap.py**: Contains the necessary functions and classes for the Leap Motion API.
 - **Leap.dll**: Dynamic Link Library for the Leap Motion SDK. It contains compiled code that the main script relies upon.
@@ -27,19 +30,37 @@ After the discontinuation of the official Google Earth UltraLeap controller, the
 3. Connect your Leap Motion sensor to your computer.
 4. Navigate to the project directory in your terminal or command prompt.
 5. Run the `runscript.bat` file:
-
 ```
 runscript.bat
 ```
-
-6. Once the script is running, open Google Earth Pro Desktop. You should now be able to navigate within Google Earth using various hand gestures detected by the Leap Motion sensor.
-
+6. Once the script is running, open Google Earth Pro Desktop. You should now be able to navigate within Google Earth using the behavior you've selected, as detected by the Leap Motion sensor.
+7. Selecting a Behavior: Inside the `on_init` function of the `LeapMotionListener` class in `LeapAPITest.py`, you can select a behavior by first creating an instance of the behavior, adding it to the `ConfigurationManager`, and then selecting it. Here's an example:
+```python
+def on_init(self, controller):
+    # Instantiate the desired behavior object (e.g., HandTiltBehavior)
+    hand_tilt = HandTiltBehavior()
+    
+    # Add the behavior object to the ConfigurationManager
+    config_manager = ConfigurationManager()
+    config_manager.add_config(hand_tilt)
+    
+    # Select the desired behavior by its name
+    config_manager.select_config("HandTilt")
+```
 ## Hand Gestures
 
+The current behavior is "HandTilt". Here's how to use it:
 - **Move Left/Right**: Rotate your hand left or right.
 - **Move Forward/Backward**: Tilt your hand forward (for moving forward) or backward (for moving backward).
 - **Zoom In/Out**: Move your hand closer to the sensor to zoom in and farther away to zoom out.
 
+In the future, there will be a list of different behaviors and information on how to use each one.
+
 ## Contributing
 
-Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request.
+Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request. 
+
+To add a new behavior:
+1. Define a new behavior class in `Controllers/behaviors.py` that inherits from `BaseBehavior`.
+2. Implement the behavior logic in the `execute` method of the new class.
+3. Add the new behavior to `ControllerConfig.py` and make sure it's available for selection in `LeapAPITest.py`.
