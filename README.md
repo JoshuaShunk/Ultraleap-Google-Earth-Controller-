@@ -5,11 +5,17 @@
 
 After the discontinuation of the official Google Earth UltraLeap controller, there was a need for a new solution to navigate Google Earth using hand gestures. This project aims to fill that void by providing a Python-based controller that leverages the capabilities of the Leap Motion sensor to interact with Google Earth Pro Desktop.
 
+
+## Features Update
+
+- **Exit Street and Ground View**: Users can now exit out of street and ground view with ease.
+- **handSlide Controller**: A new controller setting that allows users to navigate by sliding their hand. Slide your hand left to go left, right to go right, forward to go forward, and back to go backward. The zoom functionality remains consistent with the other controller settings.
+
 ## Project Structure
 
 - **LeapAPITest.py**: The main Python script that interfaces with the Leap Motion API to capture hand gestures and translate them into movements within Google Earth.
-- **Controllers/ControllerConfig.py**: Stores and manages the different controller configurations.
-- **Controllers/behaviors.py**: Contains the different behaviors that define how hand gestures are interpreted and used to control Google Earth.
+- **ControllerConfig.py**: Stores and manages the different controller configurations.
+- **behaviors.py**: Contains the different behaviors that define how hand gestures are interpreted and used to control Google Earth.
 - **runscript.bat**: A batch script to conveniently run the main Python script.
 - **Leap.py**: Contains the necessary functions and classes for the Leap Motion API.
 - **Leap.dll**: Dynamic Link Library for the Leap Motion SDK. It contains compiled code that the main script relies upon.
@@ -49,18 +55,31 @@ def on_init(self, controller):
 ```
 ## Hand Gestures
 
-The current behavior is "HandTilt". Here's how to use it:
+There are currently two controller setting: "handTilt" and "handSlide". Here's how to use them:
+
+### handTilt Controller
 - **Move Left/Right**: Rotate your hand left or right.
 - **Move Forward/Backward**: Tilt your hand forward (for moving forward) or backward (for moving backward).
 - **Zoom In/Out**: Move your hand closer to the sensor to zoom in and farther away to zoom out.
 
-In the future, there will be a list of different behaviors and information on how to use each one.
+### handSlide Controller
+
+- **Move Left/Right**: Slide your hand to the left or right.
+- **Move Forward/Backward**: Slide your hand forward (for moving forward) or backward (for moving backward).
+- **Zoom In/Out**: Move your hand closer to the sensor to zoom in and farther away to zoom out.
+
+In the future, there will be a more behaviors and information on how to use each one.
+
 
 ## Contributing
 
 Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request. 
 
 To add a new behavior:
-1. Define a new behavior class in `Controllers/behaviors.py` that inherits from `BaseBehavior`.
+1. Define a new behavior class in `behaviors.py` that inherits from `BaseBehavior`.
 2. Implement the behavior logic in the `execute` method of the new class.
 3. Add the new behavior to `ControllerConfig.py` and make sure it's available for selection in `LeapAPITest.py`.
+
+## Disclaimer
+
+This project was made for and owned by the [Arizona Science Center](https://www.azscience.org/). 

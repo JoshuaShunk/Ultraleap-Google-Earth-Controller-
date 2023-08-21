@@ -8,25 +8,26 @@ Configuration:
 - Tilt hand left/right: Mwove left/right in Google Earth
 - Move hand closer/farther from the sensor: Zoom in/out in Google Earth
 '''
-from Controllers.ControllerConfig import ConfigurationManager, ControllerConfig
-from Controllers.behaviors import *
-import Leap
+
 import sys
-import mouse
+
+
+
+from ControllerConfig import ConfigurationManager
+from behaviors import HandSlideBehavior, HandTiltBehavior
+
+
+
+import Leap
 import time 
-import math
-import keyboard
 import win32gui
-import pyautogui
+
+
 
 
 #import pyautogui
 
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
-
-
-
-
 
 class LeapMotionListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky' ]
@@ -39,18 +40,22 @@ class LeapMotionListener(Leap.Listener):
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
 
+    config_manager = ConfigurationManager()
+
     def on_init(self, controller):
         print("Initialized")
 
         # 1. Instantiate Behavior Objects
-        hand_tilt = HandTiltBehavior()
 
         # 2. Add Behavior Objects to ConfigurationManager
-        config_manager = ConfigurationManager()
-        config_manager.add_config(hand_tilt)
+        self.config_manager = ConfigurationManager()
+        hand_tilt = HandTiltBehavior()
+        hand_slide = HandSlideBehavior()
+        self.config_manager.add_config(hand_tilt)
+        self.config_manager.add_config(hand_slide)
+        self.config_manager.select_config("handSlide")
 
-        # 3. Select a Behavior
-        config_manager.select_config("HandTilt")
+
 
     def on_connect(self, controller):
         print ("Motion Sensor Connected!")
@@ -71,9 +76,8 @@ class LeapMotionListener(Leap.Listener):
         frame = controller.frame()
 
         if(is_google_earth_active()):
-
             # Execute the behavior using the frame data
-            ConfigurationManager.get_selected_behavior().execute(frame)
+            self.config_manager.execute_selected_behavior(frame)
 
 
 def is_google_earth_active():

@@ -19,9 +19,10 @@ class ConfigurationManager(object):
     def select_config(self, name):
         if name not in self.configs:
             raise ValueError("Configuration with name '{}' does not exist.".format(name))
+        
         self.selected_config = self.configs[name]
 
     def execute_selected_behavior(self, frame):
         if self.selected_config:
-            self.selected_config.execute_behavior(frame)
+            self.selected_config.execute(frame)
 
