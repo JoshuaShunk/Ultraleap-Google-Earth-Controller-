@@ -9,14 +9,15 @@ mouse==0.7.1
 MouseInfo==0.1.3
 Pillow==6.2.2
 pipreqs==0.4.11
-PyAutoGUI==0.9.48
 PyGetWindow==0.0.9
 PyMsgBox==1.0.9
 pyperclip==1.8.2
 PyRect==0.2.0
 pyscreenshot==2.3
-PyScreeze==0.1.29
 pytweening==1.0.7
 requests==2.27.1
 urllib3==1.26.16
 yarg==0.1.9
+pyautogui==0.9.42
+pyscreeze==0.1.21
+pywin32==228
