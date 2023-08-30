@@ -1,3 +1,0 @@
-
-[:sys_platform == "darwin"]
-pyobjc

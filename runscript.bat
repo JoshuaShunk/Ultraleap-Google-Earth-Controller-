@@ -1,1 +1,1 @@
-Python27\python2.exe LeapAPITest.py
+python LeapAPITest.py
