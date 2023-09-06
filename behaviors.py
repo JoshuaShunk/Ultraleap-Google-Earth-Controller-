@@ -185,19 +185,12 @@ class BaseBehavior(object):
         }
 
         if target_planet in planet_actions and self.currentPlanet != target_planet:
-            print ("Switching Planets to" + target_planet)
-            if offset:
-                print ("Moving with offset")
-
             planet_actions[target_planet](offset)
             self.currentPlanet = target_planet
 
     def switch_planets(self, target_planet):
         if round(time.time() - self.planetSwitchTime) > 7 and self.switchingPlanet:
             self.switchingPlanet = False
-
-        print ("Running Function")
-        print (str(self.switchingPlanet))
 
         if not self.switchingPlanet:
             self.switchingPlanet = True
@@ -391,8 +384,6 @@ class HandSlideBehavior(BaseBehavior):
                 # Check the dead zone for hand_x (left and right movement)
 
                 # Check for slide
-
-                
                 
                 if all(-outer_limits < coord < outer_limits for coord in [hand_x, hand_z]):
 
@@ -433,7 +424,7 @@ class HandSlideBehavior(BaseBehavior):
                 self.navigate_to("Arizona Science Center")
                 self.auto_navigate = True
      
-            elif(self.last_hand_detected_time and int(round(time.time() - self.last_hand_detected_time)) % 120 == 0):
+            elif(self.last_hand_detected_time and int(round(time.time() - self.last_hand_detected_time)) != 0 and int(round(time.time() - self.last_hand_detected_time)) % 120 == 0):
                 self.rotate_planets()
 
             if not frame.hands:
