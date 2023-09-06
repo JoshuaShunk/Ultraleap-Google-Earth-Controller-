@@ -60,7 +60,7 @@ class LeapMotionListener(Leap.Listener):
     def on_connect(self, controller):
         print ("Motion Sensor Connected!")
 
-        controller.enable_gesture(Leap.Gesture.TYPE_CIRCLE);
+        controller.enable_gesture(Leap.Gesture.TYPE_SWIPE);
         
         
         
@@ -84,6 +84,7 @@ def is_google_earth_active():
     """Check if the active window is Google Earth."""
     window_title = win32gui.GetWindowText(win32gui.GetForegroundWindow())
     return "Google Earth Pro" in window_title
+
 
 def main():
     listener = LeapMotionListener()
