@@ -20,6 +20,7 @@ class BaseBehavior(object):
     currentPlanet = "Earth"
     planetSwitchTime = time.time()
     autoSwitchTime = time.time()
+    last_hand_detected_time = None
 
     def __init__(self, name):
         """Constructor for the BaseBehavior class.
@@ -119,7 +120,6 @@ class BaseBehavior(object):
             if(self.inStreetView() and self.exitingStreetView == False): 
                 self.exitStreetView()
 
-
             return (-self.sigmoid(scale_factor * (normalized_distance - 0.5))) * 1.5
         
         # No zooming for distances between the two thresholds
@@ -173,6 +173,7 @@ class BaseBehavior(object):
         self._move_to_planets(offset)
         pyautogui.click()
         pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
+        self.last_hand_detected_time = time.time()
 
     def _switch_to_target_planet(self, target_planet):
         """Private method to switch to a given target planet with the required offset."""
@@ -212,10 +213,6 @@ class BaseBehavior(object):
         pyautogui.keyUp('down')
         pyautogui.keyUp('left')
         pyautogui.keyUp('right')
-
-
-
-
 
 
 # HandTiltBehavior Class:
@@ -337,12 +334,9 @@ class HandSlideBehavior(BaseBehavior):
         """
         self.auto_navigate = False
         self.timeout = 30
-        self.last_hand_detected_time = None
         self.alt = False
         BaseBehavior.currentPlanet = "Earth"
         super(HandSlideBehavior, self).__init__("handSlide")
-
-        
 
     def execute(self, frame):
         """Execute the hand sliding behavior based on the frame data from the UltraLeap device.
@@ -352,11 +346,9 @@ class HandSlideBehavior(BaseBehavior):
         
         Note: The exact behavior executed is determined by the logic inside this method.
         """
-  
         if(round(time.time() - BaseBehavior.start_time) > 30 and BaseBehavior.exitingStreetView == True):
             #print("Exited Street View")
             BaseBehavior.exitingStreetView = False
-
 
         if(BaseBehavior.exitingStreetView != True and BaseBehavior.switchingPlanet != True):
 
@@ -367,9 +359,8 @@ class HandSlideBehavior(BaseBehavior):
             if(keyboard.is_pressed('e')):
                 self.switch_planets("Earth")
 
-
             if frame.hands:
-                self.last_hand_detected_time = time.time()    
+                BaseBehavior.last_hand_detected_time = time.time()    
                 self.auto_navigate = False
 
                 hand = frame.hands[0]
@@ -381,10 +372,7 @@ class HandSlideBehavior(BaseBehavior):
                 dead_zone = 20  # A zone in the center where there's no movement
                 outer_limits = 200
 
-                # Check the dead zone for hand_x (left and right movement)
-
                 # Check for slide
-                
                 if all(-outer_limits < coord < outer_limits for coord in [hand_x, hand_z]):
 
                     if self.alt:
@@ -417,16 +405,15 @@ class HandSlideBehavior(BaseBehavior):
                         self.alt = True
                 else:
                     self.relase_keys()
+
             # If no hands are detected and auto navigation is not active, and 30 seconds have passed since the last hand was detected
-            
-            
-            elif self.auto_navigate == False and self.last_hand_detected_time and round(time.time() - self.last_hand_detected_time) == 30 and BaseBehavior.currentPlanet == "Earth":
+            elif self.auto_navigate == False and BaseBehavior.last_hand_detected_time and round(time.time() - BaseBehavior.last_hand_detected_time) == 30 and BaseBehavior.currentPlanet == "Earth":
                 self.navigate_to("Arizona Science Center")
                 self.auto_navigate = True
      
-            elif(self.last_hand_detected_time and int(round(time.time() - self.last_hand_detected_time)) != 0 and int(round(time.time() - self.last_hand_detected_time)) % 120 == 0):
+            elif(BaseBehavior.last_hand_detected_time and int(round(time.time() - BaseBehavior.last_hand_detected_time)) != 0 and int(round(time.time() - BaseBehavior.last_hand_detected_time)) % 120 == 0):
                 self.rotate_planets()
-
+           
             if not frame.hands:
                 self.relase_keys()
                 return
