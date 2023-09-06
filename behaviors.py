@@ -4,6 +4,7 @@ import time
 import math
 import keyboard
 import pyautogui
+from Leap import Gesture 
 
 # BaseBehavior Class:
 # This is a parent class that provides a blueprint for other behavior classes.
@@ -15,7 +16,10 @@ class BaseBehavior(object):
     screen_height = 1080 # Default screen height value
     start_time = time.time()
     exitingStreetView = False
-    
+    switchingPlanet = False
+    currentPlanet = "Earth"
+    planetSwitchTime = time.time()
+    autoSwitchTime = time.time()
 
     def __init__(self, name):
         """Constructor for the BaseBehavior class.
@@ -129,14 +133,14 @@ class BaseBehavior(object):
         """
         
         # Coordinates of the pixel to check (this needs to be adjusted to where the "Exit Street View" button is)
-        x, y = 1895, 57  # Assuming top-right corner, but this might need fine-tuning
+        x, y = 1893, 37  # Assuming top-right corner, but this might need fine-tuning
 
         # Capture the pixel color at the specified location
         pixel_color = pyautogui.screenshot().getpixel((x, y))
         #print(pixel_color)
         # Define the expected color of the "Exit Street View" button (assuming white, but this might need adjustment)
         # The values might need fine-tuning based on the exact color in your Google Earth version
-        expected_color = (252, 252, 252) 
+        expected_color = (248, 248, 248) 
 
         # Compare the captured pixel color to the expected color
         return pixel_color == expected_color
@@ -145,7 +149,80 @@ class BaseBehavior(object):
         start_time = time.time()
         exitingStreetView = True
         pyautogui.press('esc')
-        
+    
+    def _move_to_planets(self, offset=0):
+        pyautogui.moveTo(85, 11)
+        pyautogui.click()
+        pyautogui.moveTo(207, 340 - offset)
+        pyautogui.click()
+        pyautogui.moveTo(400, 340 - offset)
+
+    def _move_to_moon(self, offset=0):
+        self._move_to_planets(offset)
+        pyautogui.moveTo(411, 410 - offset)
+        pyautogui.click()
+        pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
+
+    def _move_to_mars(self, offset=0):
+        self._move_to_planets(offset)
+        pyautogui.moveTo(415, 387 - offset)
+        pyautogui.click()
+        pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
+
+    def _move_to_earth(self, offset=0):
+        self._move_to_planets(offset)
+        pyautogui.click()
+        pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
+
+    def _switch_to_target_planet(self, target_planet):
+        """Private method to switch to a given target planet with the required offset."""
+        offset = 0 if self.currentPlanet == "Earth" else 20
+
+        planet_actions = {
+            "Moon": self._move_to_moon,
+            "Mars": self._move_to_mars,
+            "Earth": self._move_to_earth
+        }
+
+        if target_planet in planet_actions and self.currentPlanet != target_planet:
+            print ("Switching Planets to" + target_planet)
+            if offset:
+                print ("Moving with offset")
+
+            planet_actions[target_planet](offset)
+            self.currentPlanet = target_planet
+
+    def switch_planets(self, target_planet):
+        if round(time.time() - self.planetSwitchTime) > 7 and self.switchingPlanet:
+            self.switchingPlanet = False
+
+        print ("Running Function")
+        print (str(self.switchingPlanet))
+
+        if not self.switchingPlanet:
+            self.switchingPlanet = True
+            self.planetSwitchTime = time.time()
+            self._switch_to_target_planet(target_planet)
+
+    def rotate_planets(self):
+        next_planet = {
+            "Earth": "Mars",
+            "Mars": "Moon",
+            "Moon": "Earth"
+        }
+
+        target_planet = next_planet.get(self.currentPlanet, "Earth")  # Default to Earth if something goes wrong
+        self._switch_to_target_planet(target_planet)
+    
+    def relase_keys(self):
+        pyautogui.keyUp('up')
+        pyautogui.keyUp('down')
+        pyautogui.keyUp('left')
+        pyautogui.keyUp('right')
+
+
+
+
 
 
 # HandTiltBehavior Class:
@@ -269,6 +346,7 @@ class HandSlideBehavior(BaseBehavior):
         self.timeout = 30
         self.last_hand_detected_time = None
         self.alt = False
+        BaseBehavior.currentPlanet = "Earth"
         super(HandSlideBehavior, self).__init__("handSlide")
 
         
@@ -283,13 +361,20 @@ class HandSlideBehavior(BaseBehavior):
         """
   
         if(round(time.time() - BaseBehavior.start_time) > 30 and BaseBehavior.exitingStreetView == True):
-            print("Exited Street View")
+            #print("Exited Street View")
             BaseBehavior.exitingStreetView = False
-        elif(BaseBehavior.exitingStreetView == True):
-            print("Exiting street view in: " + str(30 - round(time.time() - BaseBehavior.start_time)))
 
-        if(BaseBehavior.exitingStreetView != True):
-             
+
+        if(BaseBehavior.exitingStreetView != True and BaseBehavior.switchingPlanet != True):
+
+            if(keyboard.is_pressed('m')):
+                self.switch_planets("Mars")
+            if(keyboard.is_pressed('l')):
+                self.switch_planets("Moon")
+            if(keyboard.is_pressed('e')):
+                self.switch_planets("Earth")
+
+
             if frame.hands:
                 self.last_hand_detected_time = time.time()    
                 self.auto_navigate = False
@@ -304,6 +389,9 @@ class HandSlideBehavior(BaseBehavior):
                 outer_limits = 200
 
                 # Check the dead zone for hand_x (left and right movement)
+
+                # Check for slide
+
                 
                 
                 if all(-outer_limits < coord < outer_limits for coord in [hand_x, hand_z]):
@@ -337,21 +425,22 @@ class HandSlideBehavior(BaseBehavior):
                             keyboard.release('down')
                         self.alt = True
                 else:
-                    keyboard.release('up')
-                    keyboard.release('down')
-                    keyboard.release('left')
-                    keyboard.release('right')
+                    self.relase_keys()
             # If no hands are detected and auto navigation is not active, and 30 seconds have passed since the last hand was detected
-            elif self.auto_navigate == False and self.last_hand_detected_time and round(time.time() - self.last_hand_detected_time) == 30:
-                
+            
+            
+            elif self.auto_navigate == False and self.last_hand_detected_time and round(time.time() - self.last_hand_detected_time) == 30 and BaseBehavior.currentPlanet == "Earth":
                 self.navigate_to("Arizona Science Center")
                 self.auto_navigate = True
-   
-            
+     
+            elif(self.last_hand_detected_time and int(round(time.time() - self.last_hand_detected_time)) % 120 == 0):
+                self.rotate_planets()
+
+            if not frame.hands:
+                self.relase_keys()
+                return
+
         # If none of the above conditions are met, release all movement keys
         else:
-            keyboard.release('up')
-            keyboard.release('down')
-            keyboard.release('left')
-            keyboard.release('right')
+            self.relase_keys()
             return
