@@ -133,14 +133,14 @@ class BaseBehavior(object):
         """
         
         # Coordinates of the pixel to check (this needs to be adjusted to where the "Exit Street View" button is)
-        x, y = 1893, 37  # Assuming top-right corner, but this might need fine-tuning
+        x, y = 1893, 38  # Assuming top-right corner, but this might need fine-tuning
 
         # Capture the pixel color at the specified location
         pixel_color = pyautogui.screenshot().getpixel((x, y))
         #print(pixel_color)
         # Define the expected color of the "Exit Street View" button (assuming white, but this might need adjustment)
         # The values might need fine-tuning based on the exact color in your Google Earth version
-        expected_color = (248, 248, 248) 
+        expected_color = (252, 252, 252) 
 
         # Compare the captured pixel color to the expected color
         return pixel_color == expected_color
@@ -151,21 +151,21 @@ class BaseBehavior(object):
         pyautogui.press('esc')
     
     def _move_to_planets(self, offset=0):
-        pyautogui.moveTo(85, 11)
+        pyautogui.moveTo(103, 13)
         pyautogui.click()
-        pyautogui.moveTo(207, 340 - offset)
+        pyautogui.moveTo(232, 398 - offset)
         pyautogui.click()
-        pyautogui.moveTo(400, 340 - offset)
+        pyautogui.moveTo(491, 397 - offset)
 
     def _move_to_moon(self, offset=0):
         self._move_to_planets(offset)
-        pyautogui.moveTo(411, 410 - offset)
+        pyautogui.moveTo(491, 478 - offset)
         pyautogui.click()
         pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
 
     def _move_to_mars(self, offset=0):
         self._move_to_planets(offset)
-        pyautogui.moveTo(415, 387 - offset)
+        pyautogui.moveTo(491, 453 - offset)
         pyautogui.click()
         pyautogui.moveTo(self.screen_width / 2.0, self.screen_height / 2.0)
 
@@ -295,17 +295,17 @@ class HandTiltBehavior(BaseBehavior):
 
         # Forward and Backward movement based on pitch (using arrow keys)
         if forward_backward_speed < -threshold:  # Negative pitch indicates forward movement
-            keyboard.press('up')
+            pyautogui.keyDown('up')
             time.sleep(-forward_backward_speed)
-            keyboard.release('up')
+            pyautogui.keyUp('up')
         elif forward_backward_speed > threshold:  # Positive pitch indicates backward movement
-            keyboard.press('down')
+            pyautogui.keyDown('down')
             time.sleep(forward_backward_speed)
             keyboard.release('down')
 
         # Left and Right movement based on roll (using arrow keys)
         if left_right_speed > threshold:  # Positive roll indicates left movement
-            keyboard.press('left')
+            pyautogui.keyDown('left')
             time.sleep(left_right_speed)
             keyboard.release('left')
         elif left_right_speed < -threshold:  # Negative roll indicates right movement
@@ -351,8 +351,9 @@ class HandSlideBehavior(BaseBehavior):
             BaseBehavior.exitingStreetView = False
 
         if(BaseBehavior.exitingStreetView != True and BaseBehavior.switchingPlanet != True):
-
+            
             if(keyboard.is_pressed('m')):
+                print("Moving to Mars")
                 self.switch_planets("Mars")
             if(keyboard.is_pressed('l')):
                 self.switch_planets("Moon")
